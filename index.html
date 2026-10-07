@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Hardware Tracker 2026 — GPU Benchmark & Price Database</title>
+<meta name="description" content="Complete AI GPU and accelerator database. H100, H200, B200, MI300X, TPU v5. Benchmark performance, pricing, availability. Free AI hardware tracker.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#070710;color:#f0f0f0;min-height:100vh}
+.hero{text-align:center;padding:50px 20px 28px;background:linear-gradient(180deg,#0a0a18,#070710)}
+.hero h1{font-size:clamp(22px,3.5vw,36px);font-weight:700;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero p{color:#555;font-size:14px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px 16px 60px}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.fb{padding:7px 14px;border-radius:20px;border:1px solid #1e1e35;background:#0d0d1e;color:#6b7280;cursor:pointer;font-size:12px;transition:all .15s}
+.fb.on{background:#818cf8;color:#000;border-color:#818cf8;font-weight:600}
+.summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.sm{background:#0d0d1e;border:1px solid #1e1e35;border-radius:10px;padding:14px;text-align:center}
+.smv{font-size:20px;font-weight:800;color:#818cf8}.sml{font-size:11px;color:#6b7280;text-transform:uppercase;margin-top:3px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{background:#0d0d1e;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;border-bottom:2px solid #1e1e35;cursor:pointer;white-space:nowrap}
+th:hover{color:#818cf8}
+th.sort-desc::after{content:" ▼"}th.sort-asc::after{content:" ▲"}
+td{padding:11px 14px;border-bottom:1px solid #0d0d20;font-size:13px;vertical-align:middle}
+tr:hover td{background:#0d0d1e}
+tr.leader td{border-left:2px solid #22c55e}
+.chip-name{font-weight:700;font-size:14px}
+.vendor-tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:600;margin-top:3px;display:inline-block}
+.nvidia-tag{background:rgba(118,185,0,.15);color:#76b900}
+.amd-tag{background:rgba(237,28,36,.15);color:#ed1c24}
+.google-tag{background:rgba(66,133,244,.15);color:#4285f4}
+.amazon-tag{background:rgba(255,153,0,.15);color:#ff9900}
+.intel-tag{background:rgba(0,113,197,.15);color:#0071c5}
+.other-tag{background:rgba(129,140,248,.1);color:#818cf8}
+.perf-bar{height:5px;background:#1e1e35;border-radius:3px;margin-top:4px;overflow:hidden;min-width:80px}
+.pb-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#818cf8,#c084fc)}
+.price{font-family:monospace;font-weight:700;color:#22c55e}
+.price.na{color:#4b5563}
+.avail-ok{color:#22c55e;font-size:12px}.avail-lim{color:#f59e0b;font-size:12px}.avail-na{color:#4b5563;font-size:12px}
+.category-badge{font-size:10px;padding:2px 7px;border-radius:5px;background:#1e1e35;color:#9ca3af}
+.ft{text-align:center;padding:20px;color:#333;font-size:12px}.ft a{color:#818cf8;text-decoration:none}
+</style>
+</head><body>
+<div class="hero"><h1>AI Hardware Tracker 2026</h1><p>GPU · TPU · Custom Chips · Benchmark performance · Pricing · Availability</p></div>
+<div class="wrap">
+<div class="filters" id="filters">
+<button class="fb on" onclick="filter('all',this)">All Hardware</button>
+<button class="fb" onclick="filter('nvidia',this)">NVIDIA</button>
+<button class="fb" onclick="filter('amd',this)">AMD</button>
+<button class="fb" onclick="filter('google',this)">Google</button>
+<button class="fb" onclick="filter('amazon',this)">Amazon</button>
+<button class="fb" onclick="filter('intel',this)">Intel</button>
+<button class="fb" onclick="filter('datacenter',this)">Datacenter</button>
+<button class="fb" onclick="filter('consumer',this)">Consumer</button>
+<button class="fb" onclick="filter('cloud_only',this)">Cloud-only</button>
+</div>
+<div class="summary">
+<div class="sm"><div class="smv" id="sm-count">15</div><div class="sml">Chips Tracked</div></div>
+<div class="sm"><div class="smv">18,000</div><div class="sml">Max TFLOPs (FP16)</div></div>
+<div class="sm"><div class="smv">384GB</div><div class="sml">Max VRAM</div></div>
+<div class="sm"><div class="smv">6</div><div class="sml">Vendors</div></div>
+</div>
+<div class="table-wrap">
+<table><thead><tr>
+<th onclick="sort('chip')">Chip</th>
+<th onclick="sort('vendor')">Vendor</th>
+<th onclick="sort('vram')">VRAM</th>
+<th onclick="sort('tflops')">FP16 TFLOPs</th>
+<th onclick="sort('tdp')">TDP (W)</th>
+<th onclick="sort('price')">Price (USD)</th>
+<th>Category</th>
+<th onclick="sort('avail')">Availability</th>
+<th>Year</th>
+</tr></thead><tbody id="tbody"></tbody></table>
+</div>
+</div>
+<div class="ft">Powered by <a href="https://legion-api.com">LEGION Systems</a> · Prices and specs from public sources · <a href="https://gemmo.gumroad.com/l/ngtmw">API Pro €29/mo</a><br><small style="margin-top:4px;display:block">Prices are approximate street/OEM prices. Cloud-only chips have no retail price. Verify before purchasing.</small></div>
+<script>
+const CHIPS=[
+  {chip:"GB200 NVL72",vendor:"nvidia",vram:384,tflops:18000,tdp:2700,price:200000,category:"datacenter",avail:"hyperscale_only",year:2025},
+  {chip:"B200",vendor:"nvidia",vram:192,tflops:9000,tdp:1000,price:70000,category:"datacenter",avail:"pre-order",year:2025},
+  {chip:"H200",vendor:"nvidia",vram:141,tflops:3958,tdp:1000,price:40000,category:"datacenter",avail:"limited",year:2024},
+  {chip:"H100 SXM",vendor:"nvidia",vram:80,tflops:2000,tdp:700,price:30000,category:"datacenter",avail:"limited",year:2023},
+  {chip:"MI350X",vendor:"amd",vram:288,tflops:8400,tdp:800,price:35000,category:"datacenter",avail:"2025",year:2025},
+  {chip:"MI300X",vendor:"amd",vram:192,tflops:5200,tdp:750,price:25000,category:"datacenter",avail:"available",year:2024},
+  {chip:"TPU v5p",vendor:"google",vram:96,tflops:4595,tdp:450,price:null,category:"cloud_only",avail:"cloud_only",year:2024},
+  {chip:"TPU v5e",vendor:"google",vram:16,tflops:918,tdp:170,price:null,category:"cloud_only",avail:"cloud_only",year:2023},
+  {chip:"Trainium2",vendor:"amazon",vram:96,tflops:3800,tdp:600,price:null,category:"cloud_only",avail:"cloud_only",year:2024},
+  {chip:"Gaudi3",vendor:"intel",vram:128,tflops:1835,tdp:900,price:18000,category:"datacenter",avail:"available",year:2024},
+  {chip:"Ascend 910B",vendor:"huawei",vram:64,tflops:320,tdp:400,price:null,category:"datacenter",avail:"china_only",year:2024},
+  {chip:"H100 PCIe",vendor:"nvidia",vram:80,tflops:1979,tdp:350,price:25000,category:"datacenter",avail:"available",year:2023},
+  {chip:"A100 SXM",vendor:"nvidia",vram:80,tflops:1248,tdp:400,price:15000,category:"datacenter",avail:"available",year:2022},
+  {chip:"RTX 5090",vendor:"nvidia",vram:32,tflops:1788,tdp:575,price:2000,category:"consumer",avail:"available",year:2025},
+  {chip:"RTX 4090",vendor:"nvidia",vram:24,tflops:1321,tdp:450,price:1600,category:"consumer",avail:"available",year:2022},
+];
+let currentFilter="all",sortCol="tflops",sortDir=-1;
+const maxTflops=Math.max(...CHIPS.map(c=>c.tflops||0));
+
+function filter(f,el){currentFilter=f;document.querySelectorAll(".fb").forEach(b=>b.classList.remove("on"));el.classList.add("on");render();}
+function sort(col){
+  document.querySelectorAll("th").forEach(t=>t.className="");
+  event.target.className=sortDir===-1?"sort-desc":"sort-asc";
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}
+  render();
+}
+function vendorClass(v){return`${v}-tag`;}
+function availClass(a){return a==="available"||a==="cloud_only"?"avail-ok":a==="limited"||a==="pre-order"?"avail-lim":"avail-na";}
+function fmtPrice(p){return p?("$"+p.toLocaleString()):"Cloud/Internal";}
+function fmtAvail(a){const m={available:"Available",limited:"Limited",pre_order:"Pre-order",hyperscale_only:"Hyperscale",cloud_only:"Cloud only",china_only:"China only","2025":"2025 release"};return m[a]||a;}
+
+function render(){
+  let data=[...CHIPS];
+  if(currentFilter==="all"){}
+  else if(["nvidia","amd","google","amazon","intel","huawei"].includes(currentFilter)) data=data.filter(c=>c.vendor===currentFilter);
+  else if(currentFilter==="datacenter") data=data.filter(c=>c.category==="datacenter");
+  else if(currentFilter==="consumer") data=data.filter(c=>c.category==="consumer");
+  else if(currentFilter==="cloud_only") data=data.filter(c=>c.avail==="cloud_only");
+
+  data.sort((a,b)=>{
+    const av=a[sortCol==="tflops"?"tflops":sortCol==="vram"?"vram":sortCol==="tdp"?"tdp":sortCol==="price"?"price":sortCol]||0;
+    const bv=b[sortCol==="tflops"?"tflops":sortCol==="vram"?"vram":sortCol==="tdp"?"tdp":sortCol==="price"?"price":sortCol]||0;
+    if(typeof av==="string")return av.localeCompare(bv)*sortDir;
+    return(bv-av)*sortDir;
+  });
+
+  document.getElementById("sm-count").textContent=data.length;
+  const leader=data[0];
+
+  document.getElementById("tbody").innerHTML=data.map((c,i)=>{
+    const isLeader=c===leader;
+    const pctTflops=c.tflops?(c.tflops/maxTflops*100):0;
+    return`<tr class="${isLeader?"leader":""}">
+      <td><div class="chip-name">${c.chip}${isLeader?" 👑":""}</div></td>
+      <td><div class="vendor-tag ${vendorClass(c.vendor)}">${c.vendor.toUpperCase()}</div></td>
+      <td>${c.vram?c.vram+"GB":"—"}</td>
+      <td>
+        ${c.tflops?c.tflops.toLocaleString()+" TFLOPS":"—"}
+        ${c.tflops?`<div class="perf-bar"><div class="pb-fill" style="width:${pctTflops}%"></div></div>`:""}
+      </td>
+      <td>${c.tdp?c.tdp+"W":"—"}</td>
+      <td class="${c.price?"price":"price na"}">${fmtPrice(c.price)}</td>
+      <td><span class="category-badge">${c.category}</span></td>
+      <td class="${availClass(c.avail)}">${fmtAvail(c.avail)}</td>
+      <td>${c.year}</td>
+    </tr>`;
+  }).join("");
+}
+render();
+</script></body></html>
